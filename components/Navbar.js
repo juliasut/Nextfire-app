@@ -1,22 +1,23 @@
 import Link from 'next/link';
 
 export default function Navbar() {
-  const { user, username} = { };
+  const user = null;
+  const username = null;
 
   return (
     <nav className="navbar">
       <ul>
         <li>
           <Link href="/">
-            <button>Feed</button>
+            <button className="btn-logo">Feed</button>
           </Link>
         </li>
 
         {username && (
           <>
-          <li>
+          <li className="push-left">
             <Link href="/admin">
-              <button>Write Posts</button>
+              <button className="btn-blue">Write Posts</button>
             </Link>
           </li>
           <li>
@@ -29,7 +30,7 @@ export default function Navbar() {
         {!username && (
           <li>
             <Link href="/enter">
-              <button>Log in</button>
+              <button className="btn-blue">Log in</button>
             </Link>
           </li>
         )}

@@ -4,7 +4,7 @@ import { UserContext } from '../lib/context';
 
 export default function Navbar() {
   // any components that rely on this value will rerender when user or username changes
-  const { user, username } = useContext(UserContext);
+  const { user, username } = useContext(UserContext)
 
   return (
     <nav className="navbar">

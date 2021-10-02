@@ -56,6 +56,7 @@ function UsernameForm() {
     batch.set(usernameDoc, { uid: user.uid });
 
     await batch.commit();
+    // Add try catch for error handling
   };
   const onChange = (e) => {
     // Force form value typed in form to match correct format

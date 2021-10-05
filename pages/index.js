@@ -34,16 +34,16 @@ export default function Home(props) {
     const last = posts[posts.length - 1];
 
     const cursor =
-      typeof last.createdAt === 'number'
+      typeof last?.createdAt === 'number'
         ? fromMillis(last.createdAt)
-        : last.createdAt;
+        : last?.createdAt;
 
-    const query = firestore
-      .collectionGroup('posts')
-      .where('published', '==', true)
-      .orderBy('createdAt', 'desc')
-      .startAfter(cursor);
-    limit(LIMIT);
+        const query = firestore
+        .collectionGroup('posts')
+        .where('published', '==', true)
+        .orderBy('createdAt', 'desc')
+        .startAfter(cursor || 1)
+        .limit(LIMIT);
 
     const newPosts = (await query.get()).docs.map((doc) => doc.data());
 

@@ -25,7 +25,11 @@ function PostManager() {
   const router = useRouter();
   const { slug } = router.query;
 
-  const postRef = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slug);
+  const postRef = firestore
+    .collection('users')
+    .doc(auth.currentUser.uid)
+    .collection('posts')
+    .doc(slug);
   const [post] = useDocumentData(postRef);
 
   return (
@@ -36,12 +40,18 @@ function PostManager() {
             <h1>{post.title}</h1>
             <p>ID: {post.slug}</p>
 
-            <PostForm postRef={postRef} defaultValues={post} preview={preview} />
+            <PostForm
+              postRef={postRef}
+              defaultValues={post}
+              preview={preview}
+            />
           </section>
 
           <aside>
-          <h3>Tools</h3>
-            <button onClick={() => setPreview(!preview)}>{preview ? 'Edit' : 'Preview'}</button>
+            <h3>Tools</h3>
+            <button onClick={() => setPreview(!preview)}>
+              {preview ? 'Edit' : 'Preview'}
+            </button>
             <Link href={`/${post.username}/${post.slug}`}>
               <button className="btn-blue">Live view</button>
             </Link>
@@ -53,7 +63,12 @@ function PostManager() {
 }
 
 function PostForm({ defaultValues, postRef, preview }) {
-  const { register, handleSubmit, reset, watch } = useForm({ defaultValues, mode: 'onChange' });
+  const { register, handleSubmit, reset, watch, formState, errors } = useForm({
+    defaultValues,
+    mode: 'onChange',
+  });
+
+  const { isValid, isDirty } = formState;
 
   const updatePost = async ({ content, published }) => {
     await postRef.update({
@@ -64,7 +79,7 @@ function PostForm({ defaultValues, postRef, preview }) {
 
     reset({ content, published });
 
-    toast.success('Post updated successfully!')
+    toast.success('Post updated successfully!');
   };
 
   return (
@@ -76,15 +91,22 @@ function PostForm({ defaultValues, postRef, preview }) {
       )}
 
       <div className={preview ? styles.hidden : styles.controls}>
-  
-        <textarea name="content" {...register('content')}></textarea>
+        
+      <textarea name="content" ref={register({
+            maxLength: { value: 20000, message: 'content is too long' },
+            minLength: { value: 10, message: 'content is too short' },
+            required: { value: true, message: 'content is required'}
+          })}>
+      </textarea>
+
+        {errors.content && <p className="text-danger">{errors.content.message}</p>}
 
         <fieldset>
-          <input className={styles.checkbox} name="published" type="checkbox" {...register('published')} />
+          <input className={styles.checkbox} name="published" type="checkbox" ref={register} />
           <label>Published</label>
         </fieldset>
 
-        <button type="submit" className="btn-green">
+        <button type="submit" className="btn-green" disabled={ !isValid || !isDirty}>
           Save Changes
         </button>
       </div>

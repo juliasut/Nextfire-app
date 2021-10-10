@@ -1,3 +1,19 @@
+
+This blogpost App is hosted at https://nextfire-app-two.vercel.app/
+
+
+Learning objectives: 
+- 👨‍🎤 Custom Firebase usernames
+- 📰 Bot-friendly content (SEO)
+- 🦾 Advanced SSR, SSG, and ISR techniques
+- 🔥 Firestore realtime CRUD and data modeling
+- ⚛️ Reactive forms with react-hook-form
+- 📂 Image file uploads
+- 💞 Realtime hearts
+- 🚀 Security & Deployment
+
+https://user-images.githubusercontent.com/81769855/136713586-6768b154-c644-40db-bed1-5996335ccdb6.mov
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

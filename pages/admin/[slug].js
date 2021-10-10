@@ -5,7 +5,7 @@ import ImageUploader from '../../components/ImageUploader';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
-import { useDocumentData } from 'react-firebase-hooks/firestore';
+import { useDocumentDataOnce } from 'react-firebase-hooks/firestore';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -25,12 +25,8 @@ function PostManager() {
   const router = useRouter();
   const { slug } = router.query;
 
-  const postRef = firestore
-    .collection('users')
-    .doc(auth.currentUser.uid)
-    .collection('posts')
-    .doc(slug);
-  const [post] = useDocumentData(postRef);
+  const postRef = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slug);
+  const [post] = useDocumentDataOnce(postRef);
 
   return (
     <main className={styles.container}>
@@ -40,21 +36,16 @@ function PostManager() {
             <h1>{post.title}</h1>
             <p>ID: {post.slug}</p>
 
-            <PostForm
-              postRef={postRef}
-              defaultValues={post}
-              preview={preview}
-            />
+            <PostForm postRef={postRef} defaultValues={post} preview={preview} />
           </section>
 
           <aside>
             <h3>Tools</h3>
-            <button onClick={() => setPreview(!preview)}>
-              {preview ? 'Edit' : 'Preview'}
-            </button>
+            <button onClick={() => setPreview(!preview)}>{preview ? 'Edit' : 'Preview'}</button>
             <Link href={`/${post.username}/${post.slug}`}>
               <button className="btn-blue">Live view</button>
             </Link>
+            <DeletePostButton postRef={postRef} />
           </aside>
         </>
       )}
@@ -63,10 +54,8 @@ function PostManager() {
 }
 
 function PostForm({ defaultValues, postRef, preview }) {
-  const { register, handleSubmit, reset, watch, formState, errors } = useForm({
-    defaultValues,
-    mode: 'onChange',
-  });
+  // useForm hook from react hook forms to connect from html form to react. Default values - data from firestore doc, onChange will rerender and revalidate the form
+  const { register, errors, handleSubmit, formState, reset, watch } = useForm({ defaultValues, mode: 'onChange' });
 
   const { isValid, isDirty } = formState;
 
@@ -91,13 +80,16 @@ function PostForm({ defaultValues, postRef, preview }) {
       )}
 
       <div className={preview ? styles.hidden : styles.controls}>
-      <ImageUploader />
-      <textarea name="content" ref={register({
+        <ImageUploader />
+
+        <textarea
+          name="content"
+          ref={register({
             maxLength: { value: 20000, message: 'content is too long' },
             minLength: { value: 10, message: 'content is too short' },
-            required: { value: true, message: 'content is required'}
-          })}>
-      </textarea>
+            required: { value: true, message: 'content is required' },
+          })}
+        ></textarea>
 
         {errors.content && <p className="text-danger">{errors.content.message}</p>}
 
@@ -106,10 +98,29 @@ function PostForm({ defaultValues, postRef, preview }) {
           <label>Published</label>
         </fieldset>
 
-        <button type="submit" className="btn-green" disabled={ !isValid || !isDirty}>
+        <button type="submit" className="btn-green" disabled={!isDirty || !isValid}>
           Save Changes
         </button>
       </div>
     </form>
+  );
+}
+
+function DeletePostButton({ postRef }) {
+  const router = useRouter();
+
+  const deletePost = async () => {
+    const doIt = confirm('are you sure!');
+    if (doIt) {
+      await postRef.delete();
+      router.push('/admin');
+      toast('post annihilated ', { icon: '🗑️' });
+    }
+  };
+
+  return (
+    <button className="btn-red" onClick={deletePost}>
+      Delete
+    </button>
   );
 }
